@@ -21,6 +21,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'phone',
+        'address',
+        'avatar',
+        'is_active',
+        'bio',
+        'rating'
     ];
 
     /**
@@ -38,11 +45,45 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+        'rating' => 'decimal:2'
+    ];
+
+    public function services()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Service::class, 'provider_id');
+    }
+
+    public function bookingsAsClient()
+    {
+        return $this->hasMany(Booking::class, 'client_id');
+    }
+
+    public function bookingsAsProvider()
+    {
+        return $this->hasMany(Booking::class, 'provider_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'provider_id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isProvider()
+    {
+        return $this->role === 'provider';
+    }
+
+    public function isClient()
+    {
+        return $this->role === 'client';
     }
 }
