@@ -1,8 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminBookingController;
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\CheckoutController;
+use App\Http\Controllers\Client\ClientBookingController;
+use App\Http\Controllers\Provider\ProviderBookingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
     Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
@@ -65,6 +72,35 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('services/{service}/toggle-status', [ServiceController::class, 'toggleStatus'])
         ->name('services.toggle-status');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/checkout', [CheckoutController::class, 'index'])->name('admin.checkout');
+    Route::post('/admin/checkout', [CheckoutController::class, 'store']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Admin routes
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin/bookings', [AdminBookingController::class, 'index'])->name('admin.bookings');
+        Route::put('/admin/bookings/{booking}', [AdminBookingController::class, 'update']);
+        Route::delete('/admin/bookings/{booking}', [AdminBookingController::class, 'destroy']);
+        Route::get('/admin/bookings/export', [AdminBookingController::class, 'export'])->name('admin.bookings.export');
+    });
+
+    // Provider routes
+    Route::middleware(['role:provider'])->group(function () {
+        Route::get('/provider/bookings', [ProviderBookingController::class, 'index'])->name('provider.bookings');
+        Route::put('/provider/bookings/{booking}', [ProviderBookingController::class, 'update']);
+        Route::put('/provider/bookings/{booking}/cancel', [ProviderBookingController::class, 'cancel']);
+    });
+
+    // Client routes
+    Route::get('/bookings', [ClientBookingController::class, 'index'])->name('client.bookings');
+    Route::put('/bookings/{booking}/cancel', [ClientBookingController::class, 'cancel']);
+});
+
+Route::get('/', [HomeController::class, 'index'])->name('services.index');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 
 require __DIR__ . '/auth.php';

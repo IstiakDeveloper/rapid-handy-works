@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\ServiceCategory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -41,8 +42,18 @@ class ServiceController extends Controller
     public function create()
     {
         $categories = ServiceCategory::active()->get();
+
+        // Fetch providers only if the user is an admin
+        $providers = auth()->user()->role === 'admin'
+            ? User::where('role', 'provider')->get()
+            : [];
+
         return Inertia::render('Admin/Services/Create', [
             'categories' => $categories,
+            'providers' => $providers,
+            'auth' => [
+                'user' => auth()->user()
+            ]
         ]);
     }
 
@@ -57,6 +68,16 @@ class ServiceController extends Controller
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
             'is_active' => 'boolean',
+            'provider_id' => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    // If not admin, ensure user can only create service for themselves
+                    if (!auth()->user()->isAdmin() && auth()->user()->id != $value) {
+                        $fail('Unauthorized service creation');
+                    }
+                }
+            ],
         ]);
 
         // Handle image uploads
@@ -68,8 +89,12 @@ class ServiceController extends Controller
             }
         }
 
+        // For providers, force their own ID
+        if (!auth()->user()->isAdmin()) {
+            $validated['provider_id'] = auth()->user()->id;
+        }
+
         $service = new Service($validated);
-        $service->provider_id = auth()->user()->id;
         $service->images = $imageUrls;
         $service->save();
 

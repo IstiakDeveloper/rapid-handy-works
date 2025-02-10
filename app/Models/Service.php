@@ -31,12 +31,6 @@ class Service extends Model
         'images' => 'array'
     ];
 
-    public function setTitleAttribute($value)
-    {
-        $this->attributes['title'] = $value;
-        $this->attributes['slug'] = \Str::slug($value);
-    }
-
     public function category()
     {
         return $this->belongsTo(ServiceCategory::class, 'category_id');
@@ -46,6 +40,15 @@ class Service extends Model
     {
         return $this->belongsTo(User::class, 'provider_id');
     }
+
+
+    public function setTitleAttribute($value)
+    {
+        $this->attributes['title'] = $value;
+        $this->attributes['slug'] = \Str::slug($value);
+    }
+
+
 
     public function bookings()
     {

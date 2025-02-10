@@ -9,7 +9,7 @@ import {
     CameraIcon,
 } from "@heroicons/react/24/outline";
 
-export default function Create({ categories }) {
+export default function Create({ auth, categories, providers = [] }) {
     const [previewImages, setPreviewImages] = useState([]);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -20,6 +20,7 @@ export default function Create({ categories }) {
         duration: "",
         images: [],
         is_active: true,
+        provider_id: auth.user.role === "provider" ? auth.user.id : "", // Default for providers
     });
 
     const handleSubmit = (e) => {
@@ -27,8 +28,8 @@ export default function Create({ categories }) {
         const formData = new FormData();
 
         // Append all form data
-        Object.keys(data).forEach(key => {
-            if (key !== 'images') {
+        Object.keys(data).forEach((key) => {
+            if (key !== "images") {
                 formData.append(key, data[key]);
             }
         });
@@ -53,18 +54,22 @@ export default function Create({ categories }) {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        setData('images', files);
+        setData("images", files);
 
         // Create preview URLs
-        const previews = files.map(file => URL.createObjectURL(file));
+        const previews = files.map((file) => URL.createObjectURL(file));
         setPreviewImages(previews);
     };
 
     const removeImage = (indexToRemove) => {
-        const newFiles = data.images.filter((_, index) => index !== indexToRemove);
-        const newPreviews = previewImages.filter((_, index) => index !== indexToRemove);
+        const newFiles = data.images.filter(
+            (_, index) => index !== indexToRemove
+        );
+        const newPreviews = previewImages.filter(
+            (_, index) => index !== indexToRemove
+        );
 
-        setData('images', newFiles);
+        setData("images", newFiles);
         setPreviewImages(newPreviews);
     };
 
@@ -83,6 +88,54 @@ export default function Create({ categories }) {
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
+                                {auth.user.role === "admin" && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Select Service Provider
+                                        </label>
+                                        <select
+                                            value={data.provider_id}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "provider_id",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                        >
+                                            <option value="">
+                                                Select a provider
+                                            </option>
+                                            {providers.map((provider) => (
+                                                <option
+                                                    key={provider.id}
+                                                    value={provider.id}
+                                                >
+                                                    {provider.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.provider_id && (
+                                            <p className="mt-1 text-sm text-red-600">
+                                                {errors.provider_id}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* For providers, auto-select their own ID */}
+                                {auth.user.role === "provider" && (
+                                    <input
+                                        type="hidden"
+                                        value={auth.user.id}
+                                        onChange={(e) =>
+                                            setData(
+                                                "provider_id",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                )}
                                 {/* Title */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
@@ -95,7 +148,9 @@ export default function Create({ categories }) {
                                         <input
                                             type="text"
                                             value={data.title}
-                                            onChange={(e) => setData("title", e.target.value)}
+                                            onChange={(e) =>
+                                                setData("title", e.target.value)
+                                            }
                                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             placeholder="Enter service title"
                                         />
@@ -118,7 +173,12 @@ export default function Create({ categories }) {
                                         </div>
                                         <textarea
                                             value={data.description}
-                                            onChange={(e) => setData("description", e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "description",
+                                                    e.target.value
+                                                )
+                                            }
                                             rows={4}
                                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             placeholder="Enter service description"
@@ -138,11 +198,18 @@ export default function Create({ categories }) {
                                     </label>
                                     <select
                                         value={data.category_id}
-                                        onChange={(e) => setData("category_id", e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                "category_id",
+                                                e.target.value
+                                            )
+                                        }
                                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                                     >
-                                        <option value="">Select a category</option>
-                                        {categories.map(category => (
+                                        <option value="">
+                                            Select a category
+                                        </option>
+                                        {categories.map((category) => (
                                             <option
                                                 key={category.id}
                                                 value={category.id}
@@ -172,7 +239,12 @@ export default function Create({ categories }) {
                                                 type="number"
                                                 step="0.01"
                                                 value={data.price}
-                                                onChange={(e) => setData("price", e.target.value)}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "price",
+                                                        e.target.value
+                                                    )
+                                                }
                                                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                 placeholder="0.00"
                                             />
@@ -196,7 +268,12 @@ export default function Create({ categories }) {
                                             <input
                                                 type="number"
                                                 value={data.duration}
-                                                onChange={(e) => setData("duration", e.target.value)}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "duration",
+                                                        e.target.value
+                                                    )
+                                                }
                                                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                 placeholder="Service duration"
                                             />
@@ -229,10 +306,14 @@ export default function Create({ categories }) {
                                                         className="sr-only"
                                                         multiple
                                                         accept="image/*"
-                                                        onChange={handleImageChange}
+                                                        onChange={
+                                                            handleImageChange
+                                                        }
                                                     />
                                                 </label>
-                                                <p className="pl-1">or drag and drop</p>
+                                                <p className="pl-1">
+                                                    or drag and drop
+                                                </p>
                                             </div>
                                             <p className="text-xs text-gray-500">
                                                 PNG, JPG, GIF up to 2MB
@@ -243,26 +324,34 @@ export default function Create({ categories }) {
                                     {/* Image Previews */}
                                     {previewImages.length > 0 && (
                                         <div className="mt-4 grid grid-cols-5 gap-4">
-                                            {previewImages.map((preview, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="relative"
-                                                >
-                                                    <img
-                                                        src={preview}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="h-20 w-20 object-cover rounded-md"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeImage(index)}
-                                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                                            {previewImages.map(
+                                                (preview, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="relative"
                                                     >
-                                                        X
-                                                    </button>
-                                                </div>
-                                            ))}
-</div>
+                                                        <img
+                                                            src={preview}
+                                                            alt={`Preview ${
+                                                                index + 1
+                                                            }`}
+                                                            className="h-20 w-20 object-cover rounded-md"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeImage(
+                                                                    index
+                                                                )
+                                                            }
+                                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
                                     )}
                                     {errors.images && (
                                         <p className="mt-1 text-sm text-red-600">
@@ -277,7 +366,12 @@ export default function Create({ categories }) {
                                         <input
                                             type="checkbox"
                                             checked={data.is_active}
-                                            onChange={(e) => setData("is_active", e.target.checked)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "is_active",
+                                                    e.target.checked
+                                                )
+                                            }
                                             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                         />
                                         <label className="ml-2 block text-sm text-gray-900">
@@ -304,7 +398,9 @@ export default function Create({ categories }) {
                                         disabled={processing}
                                         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                                     >
-                                        {processing ? "Creating..." : "Create Service"}
+                                        {processing
+                                            ? "Creating..."
+                                            : "Create Service"}
                                     </button>
                                 </div>
                             </form>
