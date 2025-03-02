@@ -47,7 +47,7 @@ export default function Checkout({ auth }) {
             });
 
             clearCart();
-            window.location.href = '/admin/bookings';
+            window.location.href = '/bookings';
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.response?.data?.errors || err.message;
             setError(errorMessage);

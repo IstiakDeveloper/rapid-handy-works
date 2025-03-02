@@ -53,21 +53,11 @@ export default function Authenticated({ children }) {
                 name: "Services",
                 href: "/admin/services",
                 icon: WrenchIcon,
-                subItems: [
-                    { name: "All Services", href: "/admin/services" },
-                    { name: "Categories", href: "/admin/services/categories" },
-                    { name: "Pending Approval", href: "/admin/services/pending" }
-                ]
             },
             {
                 name: "Bookings",
                 href: "/admin/bookings",
                 icon: CalendarDaysIcon,
-                subItems: [
-                    { name: "All Bookings", href: "/admin/bookings" },
-                    { name: "Pending", href: "/admin/bookings/pending" },
-                    { name: "Completed", href: "/admin/bookings/completed" }
-                ]
             },
             { name: "Reports", href: "/admin/reports", icon: FileTextIcon },
             { name: "Settings", href: "/admin/settings", icon: Settings2Icon },
@@ -76,23 +66,13 @@ export default function Authenticated({ children }) {
             { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
             {
                 name: "My Services",
-                href: "/provider/services",
+                href: "/admin/services",
                 icon: WrenchIcon,
-                subItems: [
-                    { name: "Active Services", href: "/provider/services" },
-                    { name: "Add New", href: "/provider/services/create" },
-                    { name: "Drafts", href: "/provider/services/drafts" }
-                ]
             },
             {
                 name: "Bookings",
                 href: "/provider/bookings",
                 icon: CalendarDaysIcon,
-                subItems: [
-                    { name: "Active", href: "/provider/bookings" },
-                    { name: "Calendar", href: "/provider/bookings/calendar" },
-                    { name: "History", href: "/provider/bookings/history" }
-                ]
             },
             { name: "Reviews", href: "/provider/reviews", icon: StarIcon },
             { name: "Messages", href: "/provider/messages", icon: MessageSquareIcon },
@@ -100,16 +80,11 @@ export default function Authenticated({ children }) {
         ],
         client: [
             { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-            { name: "Book Service", href: "/services", icon: WrenchIcon },
+            { name: "Book Service", href: "/", icon: WrenchIcon },
             {
                 name: "My Bookings",
                 href: "/bookings",
                 icon: CalendarDaysIcon,
-                subItems: [
-                    { name: "All Bookings", href: "/bookings" },
-                    { name: "Upcoming", href: "/bookings/upcoming" },
-                    { name: "Past Bookings", href: "/bookings/past" }
-                ]
             },
             { name: "My Reviews", href: "/reviews", icon: StarIcon },
             { name: "Favorites", href: "/favorites", icon: StarIcon },
