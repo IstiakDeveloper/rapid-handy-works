@@ -19,6 +19,12 @@ class Booking extends Model
         'status',
         'payment_status',
         'total_amount',
+        'booking_fee',
+        'remaining_amount',
+        'booking_fee_status',
+        'payment_method',
+        'transaction_id',
+        'reference_number',
         'notes',
         'address',
         'phone',
@@ -31,6 +37,8 @@ class Booking extends Model
         'booking_date' => 'date',
         'booking_time' => 'datetime',
         'total_amount' => 'decimal:2',
+        'booking_fee' => 'decimal:2',
+        'remaining_amount' => 'decimal:2',
         'completed_at' => 'datetime',
         'cancelled_at' => 'datetime'
     ];
@@ -78,5 +86,52 @@ class Booking extends Model
     public function scopeCancelled($query)
     {
         return $query->where('status', 'cancelled');
+    }
+
+
+    // Helpers for calculating booking fee and remaining amount
+    public static function calculateBookingFee($totalAmount, $feePercentage = 10)
+    {
+        return round(($totalAmount * $feePercentage) / 100, 2);
+    }
+
+    public function getRemainingAmountAttribute()
+    {
+        return $this->total_amount - $this->booking_fee;
+    }
+
+
+
+
+
+
+    // Payment status scopes
+    public function scopeUnpaid($query)
+    {
+        return $query->where('payment_status', 'pending');
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('payment_status', 'paid');
+    }
+
+    public function scopeRefunded($query)
+    {
+        return $query->where('payment_status', 'refunded');
+    }
+
+    // Generate a unique reference number
+    public static function generateReferenceNumber()
+    {
+        $prefix = 'BK-';
+        $uniqueNumber = $prefix . date('Ymd') . '-' . mt_rand(1000, 9999);
+
+        // Ensure uniqueness
+        while (self::where('reference_number', $uniqueNumber)->exists()) {
+            $uniqueNumber = $prefix . date('Ymd') . '-' . mt_rand(1000, 9999);
+        }
+
+        return $uniqueNumber;
     }
 }

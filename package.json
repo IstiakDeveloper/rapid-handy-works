@@ -22,7 +22,9 @@
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
+        "framer-motion": "^12.4.7",
         "lucide-react": "^0.475.0",
+        "react-hot-toast": "^2.5.2",
         "sonner": "^1.7.4"
     }
 }

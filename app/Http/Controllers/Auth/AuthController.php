@@ -34,7 +34,6 @@ class AuthController extends Controller
 
             // Redirect based on user role
             $user = Auth::user();
-
             return redirect()->intended('/dashboard');
         }
 

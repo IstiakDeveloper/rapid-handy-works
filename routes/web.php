@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutIndexController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
@@ -10,7 +11,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\CheckoutController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Client\ClientBookingController;
+use App\Http\Controllers\ContactIndexController;
 use App\Http\Controllers\Provider\ProviderBookingController;
+use App\Http\Controllers\ServiceIndexController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -77,6 +80,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/checkout', [CheckoutController::class, 'index'])->name('admin.checkout');
     Route::post('/admin/checkout', [CheckoutController::class, 'store']);
+
+    Route::get('/payment/bank-transfer/{reference}', [CheckoutController::class, 'bankTransferInstructions'])
+        ->name('payment.bank-transfer');
+    Route::post('/payment/bank-transfer/{reference}/confirm', [CheckoutController::class, 'confirmBankTransfer'])
+        ->name('payment.bank-transfer.confirm');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -113,6 +121,20 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/', [HomeController::class, 'index'])->name('services.index');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/services', [ServiceIndexController::class, 'index'])
+    ->name('services.index');
+Route::get('/about', [AboutIndexController::class, 'index'])->name('about');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])
+     ->name('checkout.index')
+     ->middleware(['auth']);
+
+Route::post('/checkout', [CheckoutController::class, 'store'])
+     ->name('checkout.store')
+     ->middleware(['auth']);
+
+Route::get('/contact', action: [ContactIndexController::class, 'index'])->name('about');
+
 
 
 require __DIR__ . '/auth.php';

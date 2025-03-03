@@ -64,4 +64,10 @@ class Service extends Model
     {
         return $query->where('is_active', true);
     }
+
+    // Optional: accessor for bookings count if you want to eager load
+    public function getBookingsCountAttribute()
+    {
+        return $this->bookings()->count();
+    }
 }
