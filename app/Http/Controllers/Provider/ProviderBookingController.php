@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -331,5 +332,30 @@ class ProviderBookingController extends Controller
         $bookings = $query->latest()->get();
 
         return response()->json(['bookings' => $bookings]);
+    }
+
+    public function download(Booking $booking)
+    {
+        // Validate if the booking belongs to the provider
+        if ($booking->provider_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Load necessary relationships
+        $booking->load(['client', 'service', 'provider']);
+
+        // Generate a unique filename for the invoice
+        $filename = 'invoice-' . $booking->reference_number . '.pdf';
+
+        // Generate the PDF invoice
+        $pdf = PDF::loadView('invoices.booking', [
+            'booking' => $booking,
+            'provider' => $booking->provider,
+            'client' => $booking->client,
+            'service' => $booking->service,
+        ]);
+
+        // For direct download
+        return $pdf->download($filename);
     }
 }

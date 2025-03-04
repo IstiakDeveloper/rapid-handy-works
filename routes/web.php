@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/provider/bookings', [ProviderBookingController::class, 'index'])->name('provider.bookings');
         Route::put('/provider/bookings/{booking}', [ProviderBookingController::class, 'update']);
         Route::put('/provider/bookings/{booking}/cancel', [ProviderBookingController::class, 'cancel']);
+
+        Route::get('/bookings/{booking}/invoice', [ProviderBookingController::class, 'download'])
+        ->name('bookings.invoice');
     });
 
     // Client routes

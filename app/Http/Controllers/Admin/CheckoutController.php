@@ -143,7 +143,7 @@ class CheckoutController extends Controller
                 'bank_details' => $this->bankDetails,
                 'redirect_to' => $request->payment_method === 'bank_transfer'
                     ? route('payment.bank-transfer', ['reference' => $bookings[0]->reference_number])
-                    : route('bookings.index')
+                    : route('client.bookings')
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -199,6 +199,6 @@ class CheckoutController extends Controller
 
         // TODO: Send notification to admin about manual payment verification
 
-        return redirect()->route('bookings.index')->with('success', 'Bank transfer information submitted successfully. Your booking will be confirmed once the payment is verified.');
+        return redirect()->route('client.bookings')->with('success', 'Bank transfer information submitted successfully. Your booking will be confirmed once the payment is verified.');
     }
 }
