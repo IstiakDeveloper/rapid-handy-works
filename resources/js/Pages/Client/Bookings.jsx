@@ -81,7 +81,7 @@ export default function ClientBookings({ auth, bookings }) {
     };
 
     const formatCurrency = (amount) => {
-        return `৳${parseFloat(amount).toFixed(2)}`;
+        return `£${parseFloat(amount).toFixed(2)}`;
     };
 
     return (
@@ -298,7 +298,7 @@ export default function ClientBookings({ auth, bookings }) {
                                     <div className="flex items-center justify-between pt-4 mt-4 border-t">
                                         {booking.status === 'completed' && !booking.review && (
                                             <Link
-                                                href={route('reviews.create', { booking: booking.id })}
+                                                href=""
                                                 className="flex items-center px-3 py-2 text-indigo-800 bg-indigo-100 rounded-lg hover:bg-indigo-200"
                                             >
                                                 <Star className="w-4 h-4 mr-2" />
@@ -308,7 +308,7 @@ export default function ClientBookings({ auth, bookings }) {
 
                                         {canPayBookingFee(booking) && booking.payment_method === 'bank_transfer' && (
                                             <Link
-                                                href={route('payment.bank-transfer', { reference: booking.reference_number })}
+                                                href=""
                                                 className="flex items-center px-3 py-2 text-green-800 bg-green-100 rounded-lg hover:bg-green-200"
                                             >
                                                 <DollarSign className="w-4 h-4 mr-2" />

@@ -58,7 +58,7 @@ const ServiceCard = ({
                         </h3>
                     </div>
                     <span className="ml-4 text-lg font-bold text-amber-600">
-                        ${formatPrice(service.price)}
+                    £{formatPrice(service.price)}
                     </span>
                 </div>
 

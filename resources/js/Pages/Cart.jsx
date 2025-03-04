@@ -37,7 +37,7 @@ export default function Cart() {
                                         )}
                                         <div>
                                             <h2 className="text-xl font-semibold">{item.title}</h2>
-                                            <p className="text-gray-600">${formatPrice(item.price)}</p>
+                                            <p className="text-gray-600">£{formatPrice(item.price)}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center">
@@ -69,7 +69,7 @@ export default function Cart() {
                                 Total Items: {cart.totalItems}
                             </p>
                             <p className="text-xl font-bold">
-                                Total Price: ${formatPrice(cart.totalPrice)}
+                                Total Price: £{formatPrice(cart.totalPrice)}
                             </p>
                         </div>
                     </div>

@@ -167,7 +167,7 @@ export default function Index({ services, categories, filters }) {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900">
-                                                ${Number(service.price || 0).toFixed(2)}
+                                                £{Number(service.price || 0).toFixed(2)}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
                                                     {service.duration} mins

@@ -108,7 +108,7 @@ export default function SideCart({ isOpen, onClose }) {
                                                                         </p>
                                                                     </div>
                                                                     <p className="font-bold text-indigo-600">
-                                                                        ${formatPrice(item.price)}
+                                                                        £{formatPrice(item.price)}
                                                                     </p>
                                                                 </div>
 
@@ -156,7 +156,7 @@ export default function SideCart({ isOpen, onClose }) {
                                                 <div className="flex justify-between mb-6">
                                                     <span className="text-lg font-bold">Subtotal</span>
                                                     <span className="text-lg font-bold text-indigo-600">
-                                                        ${formatPrice(cart.totalPrice)}
+                                                        £{formatPrice(cart.totalPrice)}
                                                     </span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-3">

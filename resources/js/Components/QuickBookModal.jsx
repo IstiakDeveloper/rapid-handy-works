@@ -118,7 +118,7 @@ const QuickBookModal = ({
                             {[
                                 {
                                     label: "Price",
-                                    value: `$${formatPrice(service.price)}`,
+                                    value: `£${formatPrice(service.price)}`,
                                     className: "text-amber-600",
                                 },
                                 {

@@ -223,13 +223,13 @@ export default function EnhancedGuestLayout({ children }) {
                                                     whileTap={{ scale: 0.95 }}
                                                 >
                                                     <Menu.Button className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
-                                                        <img
+                                                    <img
                                                             className="object-cover transition-transform duration-300 border-2 rounded-full w-11 h-11 border-amber-500 hover:rotate-6"
                                                             src={
-                                                                auth.user
-                                                                    .avatar ||
-                                                                `https://ui-avatars.com/api/?name=${auth.user.name}&background=f59e0b&color=ffffff`
-                                                            }
+                                                                auth.user?.avatar
+                                                                  ? `/storage/${auth.user.avatar}`
+                                                                  : `https://ui-avatars.com/api/?name=${auth.user?.name}&background=f59e0b&color=fff`
+                                                              }
                                                             alt={auth.user.name}
                                                         />
                                                     </Menu.Button>
@@ -472,7 +472,7 @@ export default function EnhancedGuestLayout({ children }) {
                                         </span>
                                         <div className="flex items-center justify-center w-8 h-8 p-1 border border-gray-700 rounded-full hover:border-amber-400">
                                             <img
-                                                src={`/icons/${social}.svg`}
+                                                src={`/icons/${social}.png`}
                                                 alt={social}
                                                 className="w-4 h-4"
                                             />

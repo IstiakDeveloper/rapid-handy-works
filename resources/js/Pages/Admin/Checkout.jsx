@@ -112,8 +112,8 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                                     )}
                                                 </div>
                                                 <div className="ml-4 text-right">
-                                                    <p className="font-bold">৳{(item.price * item.quantity).toFixed(2)}</p>
-                                                    <p className="text-sm text-gray-500">৳{item.price.toFixed(2)} each</p>
+                                                    <p className="font-bold">£{(item.price * item.quantity).toFixed(2)}</p>
+                                                    <p className="text-sm text-gray-500">£{item.price.toFixed(2)} each</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -122,7 +122,7 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                         <div className="pt-4 space-y-3">
                                             <div className="flex justify-between text-gray-600">
                                                 <span>Subtotal</span>
-                                                <span>৳{subtotal.toFixed(2)}</span>
+                                                <span>£{subtotal.toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between text-gray-600">
                                                 <span className="flex items-center">
@@ -131,7 +131,7 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                                         Pay Now
                                                     </span>
                                                 </span>
-                                                <span>৳{bookingFee.toFixed(2)}</span>
+                                                <span>£{bookingFee.toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between text-gray-600">
                                                 <span className="flex items-center">
@@ -140,11 +140,11 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                                         Pay Later
                                                     </span>
                                                 </span>
-                                                <span>৳{remainingAmount.toFixed(2)}</span>
+                                                <span>£{remainingAmount.toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between pt-3 font-bold border-t">
                                                 <span className="text-lg">Total</span>
-                                                <span className="text-xl text-indigo-600">৳{subtotal.toFixed(2)}</span>
+                                                <span className="text-xl text-indigo-600">£{subtotal.toFixed(2)}</span>
                                             </div>
                                         </div>
 
@@ -152,7 +152,7 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                         <div className="p-4 mt-4 border border-blue-100 rounded-lg bg-blue-50">
                                             <h4 className="mb-2 font-medium text-blue-800">About Booking Fee</h4>
                                             <p className="text-sm text-blue-700">
-                                                A {bookingFeePercentage}% booking fee (৳{bookingFee.toFixed(2)}) is required to confirm your booking.
+                                                A {bookingFeePercentage}% booking fee (£{bookingFee.toFixed(2)}) is required to confirm your booking.
                                                 This amount will be deducted from your final payment when the service is completed.
                                             </p>
                                         </div>
@@ -333,7 +333,7 @@ export default function Checkout({ auth, bookingFeePercentage = 10, bankDetails 
                                             <>
                                                 {selectedPaymentMethod === 'bank_transfer' ? 'Continue to Bank Transfer' : 'Place Order'}
                                                 <span className="px-2 py-1 ml-2 text-sm bg-white rounded bg-opacity-20">
-                                                    Pay ৳{bookingFee.toFixed(2)} Now
+                                                    Pay £{bookingFee.toFixed(2)} Now
                                                 </span>
                                             </>
                                         )}

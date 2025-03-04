@@ -31,7 +31,7 @@ const Modal = ({ children, isOpen, onClose, title = "Update Status" }) => {
 const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
     if (!isOpen || !booking) return null;
 
-    const formatCurrency = (amount) => `৳${parseFloat(amount).toFixed(2)}`;
+    const formatCurrency = (amount) => `£${parseFloat(amount).toFixed(2)}`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

@@ -169,7 +169,7 @@ export default function AdminBookings({ auth, bookings, stats }) {
                         },
                         {
                             label: "Total Revenue",
-                            value: `$${(stats?.revenue || 0).toFixed(2)}`,
+                            value: `£${(stats?.revenue || 0).toFixed(2)}`,
                         },
                     ].map((stat, index) => (
                         <div
@@ -372,7 +372,7 @@ export default function AdminBookings({ auth, bookings, stats }) {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <span className="font-semibold text-gray-900">
-                                                            $
+                                                            £
                                                             {parseFloat(
                                                                 booking.total_amount
                                                             ).toFixed(2)}
