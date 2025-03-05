@@ -37,7 +37,7 @@ export default function BankTransfer({ auth, booking, bankDetails }) {
     };
 
     // Parse booking fee as a number to ensure toFixed works
-    const bookingFee = parseFloat(booking.booking_fee) || 0;
+    const bookingFee = parseFloat(booking.calling_charge) || 0;
 
     return (
         <GuestLayout user={auth.user}>
@@ -72,7 +72,7 @@ export default function BankTransfer({ auth, booking, bankDetails }) {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Amount to Pay Now:</p>
-                                        <p className="font-medium text-indigo-600">৳{bookingFee.toFixed(2)}</p>
+                                        <p className="font-medium text-indigo-600">£{bookingFee.toFixed(2)}</p>
                                     </div>
                                 </div>
                             </div>

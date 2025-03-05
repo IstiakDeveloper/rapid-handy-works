@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Service;
-use App\Models\Setting;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,14 +14,10 @@ use Inertia\Inertia;
 
 class CheckoutController extends Controller
 {
-    private $bookingFeePercentage = 10;
     private $bankDetails;
 
     public function __construct()
     {
-        // Get booking fee percentage from settings (fallback to 10%)
-        $this->bookingFeePercentage = (int) Setting::where('key', 'booking_fee_percentage')->first()?->value ?? 10;
-
         // Bank details for direct transfer
         $this->bankDetails = [
             'account_name' => 'Netsoftuk Solution',
@@ -38,7 +34,6 @@ class CheckoutController extends Controller
 
         return Inertia::render('Admin/Checkout', [
             'user' => auth()->user(),
-            'bookingFeePercentage' => $this->bookingFeePercentage,
             'bankDetails' => $this->bankDetails
         ]);
     }
@@ -81,7 +76,7 @@ class CheckoutController extends Controller
 
             $bookings = [];
             foreach ($request->items as $item) {
-                $service = Service::findOrFail($item['id']);
+                $service = Service::with('provider')->findOrFail($item['id']);
 
                 if (!$service->is_active) {
                     throw new \Exception("Service '{$service->title}' is no longer available");
@@ -97,10 +92,16 @@ class CheckoutController extends Controller
                     throw new \Exception("Selected time slot is not available for '{$service->title}'");
                 }
 
+                // Calculate total amount and calling charge
                 $totalAmount = $service->price * $item['quantity'];
-                $bookingFee = Booking::calculateBookingFee($totalAmount, $this->bookingFeePercentage);
-                $remainingAmount = $totalAmount - $bookingFee;
+                $callingCharge = $service->provider->calling_charge ?? 0;
+                $remainingAmount = $totalAmount - $callingCharge;
                 $referenceNumber = Booking::generateReferenceNumber();
+
+                // Calculate commission
+                $commissionPercentage = $service->provider->commission_percentage ?? 10;
+                $commission = ($totalAmount * $commissionPercentage) / 100;
+                $providerAmount = $totalAmount - $commission;
 
                 $booking = Booking::create([
                     'client_id' => auth()->id(),
@@ -111,8 +112,11 @@ class CheckoutController extends Controller
                     'status' => 'pending',
                     'payment_status' => 'pending',
                     'total_amount' => $totalAmount,
-                    'booking_fee' => $bookingFee,
+                    'calling_charge' => $callingCharge,
                     'remaining_amount' => $remainingAmount,
+                    'commission_percentage' => $commissionPercentage,
+                    'commission_amount' => $commission,
+                    'provider_amount' => $providerAmount,
                     'booking_fee_status' => 'pending',
                     'payment_method' => $request->payment_method,
                     'reference_number' => $referenceNumber,

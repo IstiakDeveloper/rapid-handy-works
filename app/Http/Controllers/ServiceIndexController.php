@@ -84,8 +84,14 @@ class ServiceIndexController extends Controller
                 ] : null,
                 'provider' => $service->provider ? [
                     'id' => $service->provider->id,
-                    'name' => $service->provider->name
-                ] : null
+                    'name' => $service->provider->name,
+                    'calling_charge' => $service->provider->calling_charge ?? 0,
+                    'commission_percentage' => $service->provider->commission_percentage ?? 10
+                ] : null,
+                'provider_details' => [
+                    'calling_charge' => $service->provider->calling_charge ?? 0,
+                    'commission_percentage' => $service->provider->commission_percentage ?? 10
+                ]
             ]);
 
         // Get all categories for filtering

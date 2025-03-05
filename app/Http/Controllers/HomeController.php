@@ -18,23 +18,31 @@ class HomeController extends Controller
     {
         // Fetch active and featured services
         $services = Service::query()
-            ->with('category')  // Eager load category
+            ->with(['category', 'provider'])  // Include provider
             ->where('is_active', true)
             ->when(request('search'), function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
             })
             ->when(request('category'), function ($query, $categoryId) {
                 $query->where('category_id', $categoryId);
             })
-            ->orderByDesc('rating')  // Sort by highest rated first
+            ->orderByDesc('rating')
             ->orderByDesc('created_at')
-            ->limit(9)  // Limit to 9 featured services
-            ->get();
+            ->limit(9)
+            ->get()
+            ->map(function ($service) {
+                $data = $service->toArray();
+                $data['provider_details'] = [
+                    'calling_charge' => $service->provider->calling_charge ?? 0,
+                    'commission_percentage' => $service->provider->commission_percentage ?? 10
+                ];
+                return $data;
+            });
 
-        // Fetch active service categories
+        // Rest of the code remains the same
         $categories = ServiceCategory::query()
             ->where('is_active', true)
             ->orderBy('name')
@@ -64,10 +72,10 @@ class HomeController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%")
-                      ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                          $categoryQuery->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('category', function ($categoryQuery) use ($search) {
+                            $categoryQuery->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->when($request->category, function ($query, $categoryId) {
@@ -87,7 +95,15 @@ class HomeController extends Controller
                 $request->sort_direction ?? 'desc'
             )
             ->paginate($request->per_page ?? 12)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($service) {
+                $data = $service->toArray();
+                $data['provider_details'] = [
+                    'calling_charge' => $service->provider->calling_charge ?? 0,
+                    'commission_percentage' => $service->provider->commission_percentage ?? 10
+                ];
+                return $data;
+            });
 
         // Fetch active service categories for filtering
         $categories = ServiceCategory::query()
@@ -126,6 +142,13 @@ class HomeController extends Controller
             'provider.reviews'  // Assuming you'll have a reviews relationship
         ]);
 
+        // Add provider details to the service array
+        $serviceData = $service->toArray();
+        $serviceData['provider_details'] = [
+            'calling_charge' => $service->provider->calling_charge ?? 0,
+            'commission_percentage' => $service->provider->commission_percentage ?? 10
+        ];
+
         // Fetch similar services in the same category
         $similarServices = Service::query()
             ->where('category_id', $service->category_id)
@@ -135,7 +158,7 @@ class HomeController extends Controller
             ->get();
 
         return Inertia::render('Services/Detail', [
-            'service' => $service,
+            'service' => $serviceData,
             'similarServices' => $similarServices
         ]);
     }
@@ -177,10 +200,10 @@ class HomeController extends Controller
             ->where('is_active', true)
             ->where(function ($query) use ($request) {
                 $query->where('title', 'like', "%{$request->search}%")
-                      ->orWhere('description', 'like', "%{$request->search}%")
-                      ->orWhereHas('category', function ($categoryQuery) use ($request) {
-                          $categoryQuery->where('name', 'like', "%{$request->search}%");
-                      });
+                    ->orWhere('description', 'like', "%{$request->search}%")
+                    ->orWhereHas('category', function ($categoryQuery) use ($request) {
+                        $categoryQuery->where('name', 'like', "%{$request->search}%");
+                    });
             })
             ->limit(10)
             ->get(['id', 'title', 'description', 'price', 'category_id']);

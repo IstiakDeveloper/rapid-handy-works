@@ -19,9 +19,12 @@ class Booking extends Model
         'status',
         'payment_status',
         'total_amount',
-        'booking_fee',
+        'calling_charge',
         'remaining_amount',
-        'booking_fee_status',
+        'calling_charge_status',
+        'commission_percentage',
+        'commission_amount',
+        'provider_amount',
         'payment_method',
         'transaction_id',
         'reference_number',
@@ -133,5 +136,30 @@ class Booking extends Model
         }
 
         return $uniqueNumber;
+    }
+
+
+    /**
+     * Calculate provider commission amount
+     *
+     * @param float $totalAmount
+     * @param float $commissionPercentage
+     * @return float
+     */
+    public static function calculateCommission($totalAmount, $commissionPercentage)
+    {
+        return round(($totalAmount * $commissionPercentage) / 100, 2);
+    }
+
+    /**
+     * Calculate provider payment amount after commission
+     *
+     * @param float $totalAmount
+     * @param float $commissionAmount
+     * @return float
+     */
+    public static function calculateProviderAmount($totalAmount, $commissionAmount)
+    {
+        return $totalAmount - $commissionAmount;
     }
 }

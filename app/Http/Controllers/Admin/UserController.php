@@ -49,6 +49,8 @@ class UserController extends Controller
             'bio' => 'nullable|string|max:1000',
             'avatar' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
+            'calling_charge' => 'nullable|numeric|min:0',
+            'commission_percentage' => 'nullable|numeric|between:0,100',
         ]);
 
         try {
@@ -61,6 +63,17 @@ class UserController extends Controller
             $user->address = $validated['address'];
             $user->bio = $validated['bio'];
             $user->is_active = $validated['is_active'] ?? true;
+
+            // Set calling_charge and commission_percentage only for providers
+            if ($validated['role'] === 'provider') {
+                if (isset($validated['calling_charge'])) {
+                    $user->calling_charge = $validated['calling_charge'];
+                }
+
+                if (isset($validated['commission_percentage'])) {
+                    $user->commission_percentage = $validated['commission_percentage'];
+                }
+            }
 
             if ($request->hasFile('avatar')) {
                 $avatarPath = $request->file('avatar')->store('avatars', 'public');
@@ -94,6 +107,8 @@ class UserController extends Controller
             'bio' => 'nullable|string|max:1000',
             'avatar' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
+            'calling_charge' => 'nullable|numeric|min:0',
+            'commission_percentage' => 'nullable|numeric|between:0,100',
         ]);
 
         try {
@@ -104,6 +119,20 @@ class UserController extends Controller
             $user->address = $validated['address'];
             $user->bio = $validated['bio'];
             $user->is_active = $validated['is_active'] ?? true;
+
+            // Set calling_charge and commission_percentage for providers, null for other roles
+            if ($validated['role'] === 'provider') {
+                if (isset($validated['calling_charge'])) {
+                    $user->calling_charge = $validated['calling_charge'];
+                }
+
+                if (isset($validated['commission_percentage'])) {
+                    $user->commission_percentage = $validated['commission_percentage'];
+                }
+            } elseif ($validated['role'] !== 'provider') {
+                $user->calling_charge = null;
+                $user->commission_percentage = null;
+            }
 
             if ($validated['password']) {
                 $user->password = Hash::make($validated['password']);

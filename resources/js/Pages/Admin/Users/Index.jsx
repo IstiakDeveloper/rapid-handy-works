@@ -122,6 +122,12 @@ export default function Index({ users, filters }) {
                                             Contact
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Call Charge
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Commision %
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -161,6 +167,12 @@ export default function Index({ users, filters }) {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900">{user.phone || '-'}</div>
                                                 <div className="text-sm text-gray-500">{user.address || '-'}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-900">{user.calling_charge || '-'}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-500">{user.commission_percentage || '-'}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <Switch

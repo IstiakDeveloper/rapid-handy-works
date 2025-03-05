@@ -7,6 +7,8 @@ export const CartProvider = ({ children }) => {
         items: [],
         totalItems: 0,
         totalPrice: 0,
+        providerInfo: null,
+        callingCharge: 0
     });
 
     // Load cart from localStorage on initial load
@@ -60,15 +62,22 @@ export const CartProvider = ({ children }) => {
             const totalPrice = newItems.reduce((sum, item) =>
                 sum + (Number(item.price) * item.quantity), 0
             );
+            const callingCharge = service.provider_calling_charge || 0;
+            const providerInfo = service.provider_info || null;
+
+            console.log(
+                "service.provider_calling_charge", service.provider_calling_charge,
+                "service.provider_info", service.provider_info
+            );
+
 
             const newCart = {
                 items: newItems,
                 totalItems,
-                totalPrice
+                totalPrice,
+                providerInfo: prevCart.providerInfo || providerInfo,
+                callingCharge: prevCart.callingCharge || callingCharge
             };
-
-            // Save to localStorage
-            localStorage.setItem('cart', JSON.stringify(newCart));
 
             return newCart;
         });
@@ -90,12 +99,13 @@ export const CartProvider = ({ children }) => {
             );
 
             const newCart = {
+                ...prevCart,
                 items: newItems,
                 totalItems,
                 totalPrice,
+                providerInfo: newItems.length > 0 ? prevCart.providerInfo : null,
+                callingCharge: newItems.length > 0 ? prevCart.callingCharge : 0
             };
-
-            localStorage.setItem("cart", JSON.stringify(newCart));
 
             return newCart;
         });
@@ -119,15 +129,28 @@ export const CartProvider = ({ children }) => {
             );
 
             const newCart = {
+                ...prevCart,
                 items: newItems,
                 totalItems,
-                totalPrice,
+                totalPrice
             };
-
-            localStorage.setItem("cart", JSON.stringify(newCart));
 
             return newCart;
         });
+    };
+
+    const setProviderInfo = (providerInfo) => {
+        setCart(prevCart => ({
+            ...prevCart,
+            providerInfo
+        }));
+    };
+
+    const setCallingCharge = (callingCharge) => {
+        setCart(prevCart => ({
+            ...prevCart,
+            callingCharge: Number(callingCharge || 0)
+        }));
     };
 
     const clearCart = () => {
@@ -135,6 +158,8 @@ export const CartProvider = ({ children }) => {
             items: [],
             totalItems: 0,
             totalPrice: 0,
+            providerInfo: null,
+            callingCharge: 0
         };
 
         localStorage.setItem("cart", JSON.stringify(newCart));
@@ -149,6 +174,8 @@ export const CartProvider = ({ children }) => {
                 removeFromCart,
                 updateQuantity,
                 clearCart,
+                setProviderInfo,
+                setCallingCharge
             }}
         >
             {children}

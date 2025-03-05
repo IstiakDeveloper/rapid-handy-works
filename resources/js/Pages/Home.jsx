@@ -49,6 +49,16 @@ export default function Home({ services, categories }) {
                     ? `/storage/${service.images[0]}`
                     : null,
                 category: service.category?.name || "Uncategorized",
+                // Add provider details
+                provider_info: {
+                    id: service.provider?.id,
+                    name: service.provider?.name,
+                    calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                    commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
+                },
+                // Add direct access to calling charge for easier access
+                provider_calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                provider_commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
             },
             quantity
         );
@@ -93,6 +103,16 @@ export default function Home({ services, categories }) {
                     : null,
                 category: service.category?.name || "Uncategorized",
                 quantity: quantity,
+                // Add provider details
+                provider_info: {
+                    id: service.provider?.id,
+                    name: service.provider?.name,
+                    calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                    commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
+                },
+                // Add direct access to calling charge for easier access
+                provider_calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                provider_commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
             },
             quantity
         );

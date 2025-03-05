@@ -3,7 +3,8 @@ import {
     StarIcon,
     ClockIcon,
     EyeIcon,
-    ShoppingCartIcon
+    ShoppingCartIcon,
+    PhoneIcon // Import phone icon for calling charge
 } from "@heroicons/react/24/solid";
 
 const ServiceCard = ({
@@ -12,6 +13,12 @@ const ServiceCard = ({
     onAddToCart,
     formatPrice
 }) => {
+    // Check if provider data and calling charge exist
+    const hasProviderInfo = service.provider || service.provider_details;
+    const callingCharge = service.provider?.calling_charge ||
+                         service.provider_details?.calling_charge ||
+                         0;
+
     return (
         <div className="relative overflow-hidden transition-all duration-300 transform bg-white shadow-lg group rounded-2xl hover:shadow-2xl hover:ring-2 hover:ring-amber-500/20 hover:-translate-y-2">
             {/* Image Container with Overlay */}
@@ -94,6 +101,23 @@ const ServiceCard = ({
                         </span>
                     </div>
                 </div>
+
+                {/* Calling Charge - Only shown if it exists */}
+                {callingCharge > 0 && (
+                    <div className="flex items-center mt-2 text-sm">
+                        <PhoneIcon className="w-4 h-4 mr-1 text-blue-500" />
+                        <span className="text-blue-600 font-medium">
+                            Calling Charge: £{formatPrice(callingCharge)}
+                        </span>
+                    </div>
+                )}
+
+                {/* Provider Name - If available */}
+                {hasProviderInfo && (
+                    <div className="text-sm text-gray-500 mt-1">
+                        Provider: {service.provider?.name || 'Service Provider'}
+                    </div>
+                )}
             </div>
         </div>
     );

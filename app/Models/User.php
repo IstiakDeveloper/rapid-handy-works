@@ -27,6 +27,8 @@ class User extends Authenticatable
         'avatar',
         'is_active',
         'bio',
+        'calling_charge',
+        'commission_percentage',
         'rating'
     ];
 
