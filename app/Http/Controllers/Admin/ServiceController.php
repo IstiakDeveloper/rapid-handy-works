@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
+    // UK cities list
+    private $ukCities = [
+        'London', 'Manchester', 'Birmingham', 'Liverpool', 'Leeds',
+        'Glasgow', 'Edinburgh', 'Bristol', 'Sheffield', 'Newcastle',
+        'Cardiff', 'Belfast', 'Nottingham', 'Southampton', 'Oxford',
+        'Cambridge', 'York', 'Brighton', 'Leicester', 'Aberdeen',
+        'Dundee', 'Swansea', 'Plymouth', 'Reading', 'Coventry'
+    ];
+
     public function index(Request $request)
     {
         $services = Service::query()
@@ -23,6 +32,9 @@ class ServiceController extends Controller
             ->when($request->category, function ($query, $category) {
                 $query->where('category_id', $category);
             })
+            ->when($request->city, function ($query, $city) {
+                $query->where('city', $city);
+            })
             ->when($request->has('is_active'), function ($query) use ($request) {
                 $query->where('is_active', $request->is_active);
             })
@@ -30,12 +42,19 @@ class ServiceController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Convert duration from minutes to hours for display
+        $services->getCollection()->transform(function ($service) {
+            $service->duration_hours = $service->duration / 60;
+            return $service;
+        });
+
         $categories = ServiceCategory::active()->get();
 
         return Inertia::render('Admin/Services/Index', [
             'services' => $services,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category', 'is_active', 'sort', 'direction']),
+            'cities' => $this->ukCities,
+            'filters' => $request->only(['search', 'category', 'city', 'is_active', 'sort', 'direction']),
         ]);
     }
 
@@ -51,6 +70,7 @@ class ServiceController extends Controller
         return Inertia::render('Admin/Services/Create', [
             'categories' => $categories,
             'providers' => $providers,
+            'cities' => $this->ukCities,
             'auth' => [
                 'user' => auth()->user()
             ]
@@ -64,7 +84,8 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|exists:service_categories,id',
             'price' => 'required|numeric|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration' => 'required|numeric|min:0.5', // Changed to numeric with min 0.5 hours
+            'city' => 'required|string|max:255',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
             'is_active' => 'boolean',
@@ -94,6 +115,9 @@ class ServiceController extends Controller
             $validated['provider_id'] = auth()->user()->id;
         }
 
+        // Convert duration from hours to minutes for database storage
+        $validated['duration'] = (float)$validated['duration'] * 60;
+
         $service = new Service($validated);
         $service->images = $imageUrls;
         $service->save();
@@ -105,10 +129,15 @@ class ServiceController extends Controller
     public function edit(Service $service)
     {
         $service->load('category');
+
+        // Convert duration from minutes to hours for the form
+        $service->duration = $service->duration / 60;
+
         $categories = ServiceCategory::active()->get();
         return Inertia::render('Admin/Services/Edit', [
             'service' => $service,
             'categories' => $categories,
+            'cities' => $this->ukCities,
         ]);
     }
 
@@ -119,7 +148,8 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|exists:service_categories,id',
             'price' => 'required|numeric|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration' => 'required|numeric|min:0.5', // Changed to numeric with min 0.5 hours
+            'city' => 'required|string|max:255',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
             'is_active' => 'boolean',
@@ -140,6 +170,9 @@ class ServiceController extends Controller
                 $imageUrls[] = $imagePath;
             }
         }
+
+        // Convert duration from hours to minutes for database storage
+        $validated['duration'] = (float)$validated['duration'] * 60;
 
         $service->fill($validated);
         $service->images = $imageUrls;

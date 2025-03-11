@@ -19,6 +19,7 @@ class Service extends Model
         'duration',
         'slug',
         'images',
+        'city',
         'is_active',
         'rating'
     ];

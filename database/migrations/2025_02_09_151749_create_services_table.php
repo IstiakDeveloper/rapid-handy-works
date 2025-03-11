@@ -18,9 +18,10 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->decimal('price', 10, 2);
-            $table->integer('duration')->comment('Duration in minutes');
+            $table->integer('duration')->comment('Duration in hour');
             $table->string('slug')->unique();
             $table->json('images')->nullable();
+            $table->string('city'); // Added city field
             $table->boolean('is_active')->default(true);
             $table->decimal('rating', 3, 2)->nullable();
             $table->timestamps();

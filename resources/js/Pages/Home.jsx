@@ -12,11 +12,11 @@ import {
 } from "@heroicons/react/24/solid";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function Home({ services, categories }) {
+export default function Home({ services, categories, cities, selectedCity, filters }) {
     const { addToCart } = useCart();
     const { auth } = usePage().props;
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [searchQuery, setSearchQuery] = useState(filters.search || "");
+    const [cityValue, setCityValue] = useState(selectedCity || "");
     const [selectedService, setSelectedService] = useState(null);
     const [isQuickBookModalOpen, setIsQuickBookModalOpen] = useState(false);
 
@@ -24,15 +24,33 @@ export default function Home({ services, categories }) {
 
     const filteredServices = services.filter(
         (service) =>
-            (selectedCategory
-                ? service.category_id === selectedCategory
-                : true) &&
             (searchQuery
                 ? service.title
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                 : true)
     );
+
+    const handleCityChange = (e) => {
+        const city = e.target.value;
+        setCityValue(city);
+
+        // Redirect to same page with city parameter
+        router.get(route(route().current()),
+            { city: city, search: searchQuery },
+            { preserveState: true, preserveScroll: true }
+        );
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+
+        // Redirect to same page with search parameter
+        router.get(route(route().current()),
+            { city: cityValue, search: searchQuery },
+            { preserveState: true, preserveScroll: true }
+        );
+    };
 
     const openQuickBookModal = (service) => {
         setSelectedService(service);
@@ -49,6 +67,8 @@ export default function Home({ services, categories }) {
                     ? `/storage/${service.images[0]}`
                     : null,
                 category: service.category?.name || "Uncategorized",
+                city: service.city,
+                duration_hours: service.duration_hours,
                 // Add provider details
                 provider_info: {
                     id: service.provider?.id,
@@ -102,6 +122,8 @@ export default function Home({ services, categories }) {
                     ? `/storage/${service.images[0]}`
                     : null,
                 category: service.category?.name || "Uncategorized",
+                city: service.city,
+                duration_hours: service.duration_hours,
                 quantity: quantity,
                 // Add provider details
                 provider_info: {
@@ -144,59 +166,82 @@ export default function Home({ services, categories }) {
                         seamlessly.
                     </p>
 
-                    {/* Responsive Search and Filter */}
+                    {/* Responsive Search and Filter - UPDATED to show City first, then Search */}
                     <div className="flex flex-col max-w-xl mx-auto space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                        <div className="relative flex-grow">
+                        {/* City Selection Comes First */}
+                        <div className="relative">
+                            <div className="relative flex items-center">
+                                <MapPinIcon className="absolute w-5 h-5 text-gray-400 left-3" />
+                                <select
+                                    value={cityValue}
+                                    onChange={handleCityChange}
+                                    className="w-full px-10 py-3 pr-10 text-gray-900 bg-white border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                >
+                                    <option value="">All Cities</option>
+                                    {cities.map((city) => (
+                                        city && <option key={city} value={city}>
+                                            {city}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Search Bar */}
+                        <form onSubmit={handleSearchSubmit} className="relative flex flex-grow">
                             <input
                                 type="text"
                                 placeholder="Search services..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-4 py-3 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                className="w-full px-4 py-3 text-gray-900 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                             />
-                            <MagnifyingGlassIcon className="absolute w-5 h-5 text-gray-400 right-3 top-3" />
-                        </div>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) =>
-                                setSelectedCategory(e.target.value)
-                            }
-                            className="w-full px-4 py-3 pr-10 text-gray-900 bg-white border border-gray-300 rounded-lg appearance-none md:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                        >
-                            <option value="" className="flex items-center">
-                                All Categories
-                            </option>
-                            {categories.map((category) => (
-                                <option
-                                    key={category.id}
-                                    value={category.id}
-                                    className="flex items-center"
-                                >
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select>
+                            <button
+                                type="submit"
+                                className="flex items-center justify-center px-4 text-white rounded-r-lg bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            >
+                                <MagnifyingGlassIcon className="w-5 h-5" />
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
             {/* Services Grid with Professional Design */}
             <div className="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <h2 className="mb-8 text-2xl font-bold text-center text-gray-900 md:text-3xl">
-                    Featured Services
-                </h2>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredServices.map((service) => (
-                        <ServiceCard
-                            key={service.id}
-                            service={service}
-                            onQuickView={openQuickBookModal}
-                            onAddToCart={() => handleAddToCart(service)}
-                            formatPrice={formatPrice}
-                        />
-                    ))}
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
+                        {cityValue ? `Services in ${cityValue}` : "All Services"}
+                    </h2>
+                    <div className="flex items-center">
+                        <span className="mr-2 text-gray-500">
+                            {filteredServices.length} services found
+                        </span>
+                    </div>
                 </div>
+
+                {filteredServices.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {filteredServices.map((service) => (
+                            <ServiceCard
+                                key={service.id}
+                                service={service}
+                                onQuickView={openQuickBookModal}
+                                onAddToCart={() => handleAddToCart(service)}
+                                formatPrice={formatPrice}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="p-10 text-center bg-gray-50 rounded-xl">
+                        <p className="text-xl text-gray-600">
+                            No services found {cityValue ? `in ${cityValue}` : ""} matching your criteria.
+                        </p>
+                        <p className="mt-2 text-gray-500">
+                            Try {cityValue ? "selecting a different city or " : ""} modifying your search.
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Quick Book Modal */}
@@ -287,7 +332,7 @@ export default function Home({ services, categories }) {
                     </div>
                     <div className="flex mt-8 space-x-4 lg:mt-0 lg:flex-shrink-0">
                         <Link
-                            href={route("services.index")}
+                            href={route("services.index", { city: cityValue })}
                             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium transition-colors bg-white border border-transparent rounded-md text-amber-600 hover:bg-amber-50"
                         >
                             Browse Services

@@ -9,16 +9,15 @@ import {
     MagnifyingGlassIcon,
     AdjustmentsHorizontalIcon,
     ChevronDownIcon,
+    MapPinIcon,
 } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ServicesIndex({ services, categories, filters }) {
+export default function ServicesIndex({ services, cities, categories, filters }) {
     const { addToCart } = useCart();
     const { auth } = usePage().props;
     const [searchQuery, setSearchQuery] = useState(filters.search || "");
-    const [selectedCategory, setSelectedCategory] = useState(
-        filters.category || ""
-    );
+    const [selectedCity, setSelectedCity] = useState(filters.city || "");
     const [sortOption, setSortOption] = useState(filters.sort || "");
     const [selectedService, setSelectedService] = useState(null);
     const [isQuickBookModalOpen, setIsQuickBookModalOpen] = useState(false);
@@ -32,7 +31,7 @@ export default function ServicesIndex({ services, categories, filters }) {
             "/services",
             {
                 search: searchQuery,
-                category: selectedCategory,
+                city: selectedCity,
                 sort: sortOption,
             },
             {
@@ -59,12 +58,12 @@ export default function ServicesIndex({ services, categories, filters }) {
     useEffect(() => {
         if (
             filters.search !== searchQuery ||
-            filters.category !== selectedCategory ||
+            filters.city !== selectedCity ||
             filters.sort !== sortOption
         ) {
             debouncedApplyFilters();
         }
-    }, [searchQuery, selectedCategory, sortOption]);
+    }, [searchQuery, selectedCity, sortOption]);
 
     const handleAddToCart = (service, quantity = 1) => {
         addToCart(
@@ -76,6 +75,16 @@ export default function ServicesIndex({ services, categories, filters }) {
                     ? `/storage/${service.images[0]}`
                     : null,
                 category: service.category?.name || "Uncategorized",
+                city: service.city,
+                duration_hours: service.duration_hours,
+                provider_info: {
+                    id: service.provider?.id,
+                    name: service.provider?.name,
+                    calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                    commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
+                },
+                provider_calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                provider_commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
             },
             quantity
         );
@@ -121,7 +130,17 @@ export default function ServicesIndex({ services, categories, filters }) {
                     ? `/storage/${service.images[0]}`
                     : null,
                 category: service.category?.name || "Uncategorized",
+                city: service.city,
+                duration_hours: service.duration_hours,
                 quantity: quantity,
+                provider_info: {
+                    id: service.provider?.id,
+                    name: service.provider?.name,
+                    calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                    commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
+                },
+                provider_calling_charge: service.provider?.calling_charge || service.provider_details?.calling_charge || 0,
+                provider_commission_percentage: service.provider?.commission_percentage || service.provider_details?.commission_percentage || 10
             },
             quantity
         );
@@ -169,6 +188,36 @@ export default function ServicesIndex({ services, categories, filters }) {
                     <div className="mb-10">
                         <div className="p-6 bg-white shadow-sm rounded-xl">
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                {/* City Filter - Replacing Category Filter */}
+                                <div>
+                                    <label
+                                        htmlFor="city"
+                                        className="block mb-2 text-sm font-medium text-gray-700"
+                                    >
+                                        City
+                                    </label>
+                                    <div className="relative rounded-md shadow-sm">
+                                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <MapPinIcon className="w-5 h-5 text-gray-400" />
+                                        </div>
+                                        <select
+                                            id="city"
+                                            value={selectedCity}
+                                            onChange={(e) =>
+                                                setSelectedCity(e.target.value)
+                                            }
+                                            className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                                        >
+                                            <option value="">All Cities</option>
+                                            {cities.map((city) => (
+                                                <option key={city} value={city}>
+                                                    {city}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
                                 {/* Search Input */}
                                 <div className="relative">
                                     <label
@@ -192,35 +241,6 @@ export default function ServicesIndex({ services, categories, filters }) {
                                             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Category Filter */}
-                                <div>
-                                    <label
-                                        htmlFor="category"
-                                        className="block mb-2 text-sm font-medium text-gray-700"
-                                    >
-                                        Category
-                                    </label>
-                                    <select
-                                        id="category"
-                                        value={selectedCategory}
-                                        onChange={(e) =>
-                                            setSelectedCategory(e.target.value)
-                                        }
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
-                                    >
-                                        <option value="">All Categories</option>
-                                        {categories.map((category) => (
-                                            <option
-                                                key={category.id}
-                                                value={category.id}
-                                            >
-                                                {category.name} (
-                                                {category.services_count})
-                                            </option>
-                                        ))}
-                                    </select>
                                 </div>
 
                                 {/* Sort Options */}
@@ -256,14 +276,14 @@ export default function ServicesIndex({ services, categories, filters }) {
 
                             {/* Clear Filters Button - Only shown when filters are active */}
                             {(searchQuery ||
-                                selectedCategory ||
+                                selectedCity ||
                                 sortOption) && (
                                 <div className="flex justify-end mt-6">
                                     <button
                                         type="button"
                                         onClick={() => {
                                             setSearchQuery("");
-                                            setSelectedCategory("");
+                                            setSelectedCity("");
                                             setSortOption("");
                                             router.get(
                                                 "/services",
@@ -289,14 +309,8 @@ export default function ServicesIndex({ services, categories, filters }) {
                             <h2 className="text-xl font-bold text-gray-900">
                                 {searchQuery
                                     ? `Results for "${searchQuery}"`
-                                    : selectedCategory
-                                    ? `${
-                                          categories.find(
-                                              (c) =>
-                                                  c.id.toString() ===
-                                                  selectedCategory.toString()
-                                          )?.name || "Category"
-                                      } Services`
+                                    : selectedCity
+                                    ? `Services in ${selectedCity}`
                                     : "All Services"}
                             </h2>
                             <p className="mt-1 text-sm text-gray-600">
@@ -317,7 +331,7 @@ export default function ServicesIndex({ services, categories, filters }) {
                                     <button
                                         onClick={() => {
                                             setSearchQuery("");
-                                            handleSearch(new Event("submit"));
+                                            applyFilters();
                                         }}
                                         className="ml-2 text-amber-700 hover:text-amber-900"
                                     >
@@ -326,22 +340,18 @@ export default function ServicesIndex({ services, categories, filters }) {
                                 </div>
                             )}
 
-                            {selectedCategory && (
+                            {selectedCity && (
                                 <div className="flex items-center px-3 py-1 text-sm rounded-full bg-amber-100">
                                     <span className="mr-1 font-medium text-amber-800">
-                                        Category:
+                                        City:
                                     </span>
                                     <span className="text-amber-700">
-                                        {categories.find(
-                                            (c) =>
-                                                c.id.toString() ===
-                                                selectedCategory.toString()
-                                        )?.name || "Category"}
+                                        {selectedCity}
                                     </span>
                                     <button
                                         onClick={() => {
-                                            setSelectedCategory("");
-                                            handleSearch(new Event("submit"));
+                                            setSelectedCity("");
+                                            applyFilters();
                                         }}
                                         className="ml-2 text-amber-700 hover:text-amber-900"
                                     >
@@ -367,7 +377,7 @@ export default function ServicesIndex({ services, categories, filters }) {
                                     <button
                                         onClick={() => {
                                             setSortOption("");
-                                            handleSearch(new Event("submit"));
+                                            applyFilters();
                                         }}
                                         className="ml-2 text-amber-700 hover:text-amber-900"
                                     >
@@ -398,7 +408,7 @@ export default function ServicesIndex({ services, categories, filters }) {
                             <button
                                 onClick={() => {
                                     setSearchQuery("");
-                                    setSelectedCategory("");
+                                    setSelectedCity("");
                                     setSortOption("");
                                     router.get(
                                         "/services",

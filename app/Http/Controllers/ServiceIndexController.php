@@ -20,7 +20,7 @@ class ServiceIndexController extends Controller
         // Validate and sanitize input parameters
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
-            'category' => 'nullable|exists:service_categories,id',
+            'city' => 'nullable|string|max:255',
             'sort' => 'nullable|in:price_asc,price_desc,rating,newest,most_booked',
             'per_page' => 'nullable|integer|between:9,36'
         ]);
@@ -38,9 +38,9 @@ class ServiceIndexController extends Controller
             });
         }
 
-        // Apply category filter
-        if ($request->filled('category')) {
-            $servicesQuery->where('category_id', $request->category);
+        // Apply city filter
+        if ($request->filled('city')) {
+            $servicesQuery->where('city', $request->city);
         }
 
         // Apply sorting
@@ -75,6 +75,8 @@ class ServiceIndexController extends Controller
                 'description' => $service->description,
                 'price' => $service->price,
                 'duration' => $service->duration,
+                'duration_hours' => $service->duration / 60, // Convert minutes to hours
+                'city' => $service->city, // Include city information
                 'rating' => $service->rating,
                 'images' => $service->images,
                 'bookings_count' => $service->bookings_count ?? 0,
@@ -94,18 +96,27 @@ class ServiceIndexController extends Controller
                 ]
             ]);
 
-        // Get all categories for filtering
+        // Get all categories for filtering (keeping this for compatibility)
         $categories = ServiceCategory::where('is_active', true)
             ->withCount('services')
             ->orderBy('name')
             ->get();
 
+        // Get available cities from services table
+        $cities = Service::where('is_active', true)
+            ->distinct()
+            ->pluck('city')
+            ->filter()
+            ->values()
+            ->toArray();
+
         return Inertia::render('Services/Index', [
             'services' => $services,
-            'categories' => $categories,
+            'categories' => $categories, // Keep this for backward compatibility
+            'cities' => $cities, // Add cities for filtering
             'filters' => [
                 'search' => $request->search,
-                'category' => $request->category,
+                'city' => $request->city,
                 'sort' => $request->sort,
                 'per_page' => $request->per_page
             ]
